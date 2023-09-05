@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ExpressionEvaluator</string>
+    <string name="lbl_evaluate">Evaluate</string>
+</resources>
