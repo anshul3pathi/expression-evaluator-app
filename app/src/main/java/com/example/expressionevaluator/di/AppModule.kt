@@ -1,5 +1,9 @@
 package com.example.expressionevaluator.di
 
+import android.app.Application
+import androidx.room.Room
+import com.example.expressionevaluator.core.utils.Constants
+import com.example.expressionevaluator.data.local.EvaluationDatabase
 import com.example.expressionevaluator.data.remote.EvaluationApi
 import com.example.expressionevaluator.data.repository.EvaluationRepositoryImpl
 import com.example.expressionevaluator.domain.repository.EvaluationRepository
@@ -42,7 +46,17 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideEvaluationRepository(api: EvaluationApi): EvaluationRepository {
-        return EvaluationRepositoryImpl(api)
+    fun provideCredentialDatabase(app: Application): EvaluationDatabase {
+        return Room.databaseBuilder(
+            app,
+            EvaluationDatabase::class.java,
+            Constants.DATABASE_NAME
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideEvaluationRepository(api: EvaluationApi, db: EvaluationDatabase): EvaluationRepository {
+        return EvaluationRepositoryImpl(api, db.dao)
     }
 }

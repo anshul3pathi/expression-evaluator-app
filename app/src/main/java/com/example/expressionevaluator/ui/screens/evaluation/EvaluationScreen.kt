@@ -26,11 +26,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.expressionevaluator.R
+import com.example.expressionevaluator.ui.components.ExpressionEvaluatorAppTopBar
+import com.example.expressionevaluator.ui.navigation.Routes
 import com.example.expressionevaluator.ui.theme.ExpressionEvaluatorTheme
 
 @Composable
 fun EvaluationScreenRoute(
+    navController: NavController,
     viewModel: EvaluationScreenViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -57,7 +61,8 @@ fun EvaluationScreenRoute(
             EvaluationScreen(
                 expression = expression,
                 onChangeExpression = viewModel::onChangeExpression,
-                onClickEvaluateButton = viewModel::onEvaluateExpression
+                onClickEvaluateButton = viewModel::onEvaluateExpression,
+                onClickOpenHistoryButton = { navController.navigate(Routes.HISTORY_SCREEN) }
             )
         }
     }
@@ -69,30 +74,42 @@ private fun EvaluationScreen(
     expression: String,
     onChangeExpression: (String) -> Unit,
     onClickEvaluateButton: () -> Unit,
+    onClickOpenHistoryButton: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier.padding(bottom = 16.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        BasicTextField(
-            value = expression,
-            onValueChange = onChangeExpression,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(400.dp)
-                .padding(16.dp)
-                .shadow(
-                    elevation = 2.dp,
-                    shape = RoundedCornerShape(4.dp)
-                )
-                .padding(16.dp)
-        )
+    Box(modifier = modifier.padding(bottom = 16.dp)) {
+        Column(
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            BasicTextField(
+                value = expression,
+                onValueChange = onChangeExpression,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp)
+                    .padding(16.dp)
+                    .padding(top = 58.dp)
+                    .shadow(
+                        elevation = 2.dp,
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                    .padding(16.dp)
+            )
 
-        Button(onClick = onClickEvaluateButton) {
-            Text(text = stringResource(id = R.string.lbl_evaluate), fontSize = 14.sp)
+            Button(onClick = onClickEvaluateButton) {
+                Text(text = stringResource(id = R.string.lbl_evaluate), fontSize = 14.sp)
+            }
+
+            Button(onClick = onClickOpenHistoryButton) {
+                Text(text = stringResource(id = R.string.lbl_open_history), fontSize = 14.sp)
+            }
         }
+
+        ExpressionEvaluatorAppTopBar(
+            titleText = stringResource(id = R.string.lbl_evaluate),
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 
@@ -104,7 +121,8 @@ fun EvaluationScreen_Preview() {
             EvaluationScreen(
                 expression = "a*b+c",
                 onChangeExpression = {},
-                onClickEvaluateButton = {}
+                onClickEvaluateButton = {},
+                onClickOpenHistoryButton = {}
             )
         }
     }
