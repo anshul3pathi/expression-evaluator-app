@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.expressionevaluator.domain.repository.EvaluationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,6 +24,9 @@ class EvaluationScreenViewModel @Inject constructor(
 
     private val _state: MutableStateFlow<EvaluationScreenState> = MutableStateFlow(EvaluationScreenState.Success())
     val state = _state.asStateFlow()
+
+    private val _event = Channel<EvaluationScreenEvent>()
+    val event = _event.receiveAsFlow()
 
     fun onChangeExpression(expression: String) {
         this.expression = expression
@@ -42,7 +47,9 @@ class EvaluationScreenViewModel @Inject constructor(
                     _state.update { EvaluationScreenState.Success(evaluatedResult) }
                 }
                 .onFailure { throwable ->
-                    _state.update { EvaluationScreenState.Error(throwable.localizedMessage) }
+                    _event.send(EvaluationScreenEvent.ShowToast(toastMessage = "Something went wrong! - ${throwable.localizedMessage}"))
+                    expression = ""
+                    _state.update { EvaluationScreenState.Success(expression) }
                 }
         }
     }

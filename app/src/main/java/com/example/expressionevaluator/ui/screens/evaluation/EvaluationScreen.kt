@@ -15,6 +15,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -39,14 +40,10 @@ fun EvaluationScreenRoute(
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
+    val event by viewModel.event.collectAsState(initial = null)
+
     when (state) {
-        is EvaluationScreenState.Error -> {
-            Toast.makeText(
-                context,
-                "Something went wrong! - ${(state as EvaluationScreenState.Error).errorMessage}",
-                Toast.LENGTH_LONG
-            ).show()
-        }
+        is EvaluationScreenState.Error -> Unit
 
         EvaluationScreenState.Loading -> {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -67,6 +64,19 @@ fun EvaluationScreenRoute(
         }
     }
 
+    LaunchedEffect(key1 = event) {
+        when (event) {
+            is EvaluationScreenEvent.ShowToast -> {
+                Toast.makeText(
+                    context,
+                    (event as EvaluationScreenEvent.ShowToast).toastMessage,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
+            else -> Unit
+        }
+    }
 }
 
 @Composable
